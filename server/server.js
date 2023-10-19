@@ -1,6 +1,7 @@
 const ExcelJS = require('exceljs'); // Use the appropriate library for reading Excel files
 const express = require('express');
 const sequelize = require('./config/connection.js'); // Import Sequelize configuration
+const itemRoutes = require('./routes/items.js'); // Import routes for items
 
 // Create an instance of Express
 const app = express();
@@ -11,84 +12,8 @@ const Items = require('./models/Items.js'); // Import Items models
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+app.use('/items', itemRoutes); // use item routes /items
 
-//  get all items
-app.get('/items', async (req, res) => {
-  try {
-    const allItems = await Items.findAll();
-    res.json(allItems);
-  } catch (error) {
-    console.error('Error retrieving items:', error);
-    res.status(500).json({ error: 'Unable to retrieve items.' });
-  }
-});
-
-// get single item
-app.get('/items/:sku', async (req, res) => {
-  try {
-    const sku = req.params.sku;
-    // Find item by sku
-    const item = await Items.findOne({ where: { sku: sku } });
-    if (item) {
-      return res.status(200).json(item);
-    } else {
-      return res.status(404).json({ error: 'Item not found.' });
-    }
-  } catch (error) {
-    console.error('Error retrieving item:', error);
-    res.status(500).json({ error: 'Unable to retrieve item.' });
-  }
-});
-
-// create item to add to database
-app.post('/items', async (req, res) => {
-  try {
-    if (!req.body.sku || !req.body.description || !req.body.price || !req.body.department) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    const newItem = await Items.create(req.body);
-    res.json(newItem);
-  } catch (error) {
-    console.error('Error creating item:', error);
-    res.status(500).json({ error: 'Unable to create item.' });
-  }
-});
-
-// delete item 
-app.delete('/items/:sku', async (req, res) => {
-  try {
-    const sku = req.params.sku;
-    // Find the item by sku and delete it
-    const itemToDelete = await Items.destroy({ where: { sku: sku } });
-
-    if (itemToDelete) {
-      return res.status(200).json({ message: 'Success! Item Deleted.' });
-    } else {
-      return res.status(404).json({ error: 'Item not found.' });
-    }
-  } catch (error) {
-    console.error('Error deleting item:', error);
-    res.status(500).json({ error: 'Unable to delete item.' });
-  }
-}); 
-
-// Update an item
-app.put('/items/:sku', async (req, res) => {
-  const sku = req.params.sku;
-  
-  try {
-    const [updatedRowsCount] = await Items.update(req.body, { where: { sku: sku } });
-    if (updatedRowsCount > 0) {
-      res.json({ message: 'Item updated successfully.' });
-    } else {
-      res.status(404).json({ error: 'Item not found.' });
-    }
-  } catch (error) {
-   console.error('Error updating item:', error);
-   res.status(500).json({ error: 'Unable to update item.' }); 
-  }
-});
 
 // Test the database connection
 sequelize.authenticate()
@@ -99,7 +24,7 @@ sequelize.authenticate()
     console.error('Unable to connect to the database:', err);
   });
 
-  async function removeItems() {
+async function removeItems() {
   try {
     // Remove all items from the "Items" table
     await Items.destroy({
@@ -112,8 +37,6 @@ sequelize.authenticate()
   }
 }
 async function importDataFromExcel() {
-  // remove the items in the table before starting
-  removeItems();
   // Load the Excel file
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile('./db/supplies_book_1.xlsx'); // Excel file.
@@ -151,10 +74,6 @@ async function importDataFromExcel() {
       }
     }
   }
-
-  // Close the database connection
-  // await sequelize.close();
-  // console.log('Database connection closed.');
 }
 
 // Start the Express server
@@ -163,5 +82,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// removeItems();
 importDataFromExcel();
