@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staples Supplies Management</title>
+    <script src="https://kit.fontawesome.com/e8e21585be.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="item-container"></div>
+
+    <div id="cart-container" class="cart-closed">
+        <div id="cart-header">
+            <h2>Shopping Cart</h2>
+        </div>
+        <ul id="cart-items"></ul>
+    </div>
+
+    <div id="cart-btn" class="floating-btn"><i class="fa-solid fa-cart-shopping"></i></div>
+    
+    <!-- Popups for adding items to cart -->
+    <!-- If the item exist, red popup, if it doesnt -->
+    <!-- the item will be added to the cart  -->
+    <div id="popup" class="popup"></div>
+
+    <script src="cartModal.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,6 +1,7 @@
 const ExcelJS = require('exceljs'); // Use the appropriate library for reading Excel files
 const express = require('express');
 const sequelize = require('./config/connection.js'); // Import Sequelize configuration
+const cors = require('cors');
 const itemRoutes = require('./routes/items.js'); // Import routes for items
 
 // Create an instance of Express
@@ -12,6 +13,7 @@ const Items = require('./models/Items.js'); // Import Items models
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+app.use(cors());
 app.use('/items', itemRoutes); // use item routes /items
 
 
