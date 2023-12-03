@@ -1,31 +1,28 @@
 // models/Order.js
 
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/connection'); // Sequelize configuration 
+const sequelize = require('../config/connection');
 
-const Orders = sequelize.define('Order', {
-    id: {
+const Orders = sequelize.define('Orders', {
+    orderId: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
     items_list: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON, // Use JSON type for an array or list
         allowNull: false,
     },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    price: {
+    totalPrice: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
     },
-    order_date: {
-        type: DataTypes.DATE,
-        defaultValue: sequelize.fn('NOW'),
-    },
 });
 
+Orders.sync();
 
 module.exports = Orders;

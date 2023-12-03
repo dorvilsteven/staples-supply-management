@@ -3,18 +3,20 @@ const express = require('express');
 const sequelize = require('./config/connection.js'); // Import Sequelize configuration
 const cors = require('cors');
 const itemRoutes = require('./routes/items.js'); // Import routes for items
+const orderRoutes = require('./routes/orders.js'); // Import routes for orders
 
 // Create an instance of Express
 const app = express();
 
 // Import models
 const Items = require('./models/Items.js'); // Import Items models
-// const Orders = require('./models/Orders.js'); // Import orders models
+const Orders = require('./models/Orders.js'); // Import orders models
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
 app.use(cors());
 app.use('/items', itemRoutes); // use item routes /items
+app.use('/orders', orderRoutes); // use order routes /orders
 
 
 // Test the database connection
@@ -26,18 +28,6 @@ sequelize.authenticate()
     console.error('Unable to connect to the database:', err);
   });
 
-async function removeItems() {
-  try {
-    // Remove all items from the "Items" table
-    await Items.destroy({
-      where: {},
-      truncate: false, // Set to true if you want to reset the table completely
-    });
-    console.log('All items removed from the "Items" table.');
-  } catch (error) {
-    console.error('Error removing items:', error);
-  }
-}
 async function importDataFromExcel() {
   // Load the Excel file
   const workbook = new ExcelJS.Workbook();

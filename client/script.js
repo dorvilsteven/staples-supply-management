@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         popup.innerHTML = `This SKU: ${sku} has been removed from the cart`;
         setTimeout(() => {
             popup.style.display = 'none';
-        }, 2000); // Hide the popup after 2 seconds
+        }, 3000); // Hide the popup after 2 seconds
     }
     function showPopup(bool, item) {
         popup.style.display = 'block';
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setTimeout(() => {
             popup.style.display = 'none';
-        }, 2000); // Hide the popup after 2 seconds
+        }, 3000); // Hide the popup after 2 seconds
     }
 });
 
