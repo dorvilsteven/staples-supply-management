@@ -10,6 +10,20 @@
 </head>
 
 <body>
+    <!-- password protection for the application -->
+    <div id="password-screen">
+        <div class="form">
+            <div class="password-title">
+                <h1 class="title-text">Staples Supply Management</h1>
+            </div>
+            <form id="password-form">
+                <label for="password">Enter Password:</label>
+                <input type="password" id="password" required>
+                <button type="button" onclick="checkPassword()">Submit</button>
+            </form>
+        </div>
+    </div>
+
     <div id="item-container"></div>
 
     <div id="cart-container" class="cart-closed">
@@ -17,15 +31,27 @@
             <h2>Shopping Cart</h2>
         </div>
         <ul id="cart-items"></ul>
+        <!-- Checkout Button -->
+        <button id="checkout-btn">Checkout</button> 
     </div>
 
+    <!-- checkout section  -->
+    <div id="checkout-section" class="hidden">
+        <!-- <h2>Order Confirmation</h2> -->
+        <!-- <ul id="checkout-items"></ul> -->
+        <!-- <p>Total Price: $<span id="total-price"></span></p> -->
+        <!-- <button id="place-order-btn">Place Order</button> -->
+    </div>
+
+    <!-- Floating Cart Button -->
     <div id="cart-btn" class="floating-btn"><i class="fa-solid fa-cart-shopping"></i></div>
     
     <!-- Popups for adding items to cart -->
     <!-- If the item exist, red popup, if it doesnt -->
-    <!-- the item will be added to the cart  -->
+    <!-- the item will be added to the cart -->
     <div id="popup" class="popup"></div>
 
+    
     <script src="cartModal.js"></script>
     <script src="script.js"></script>
 </body>

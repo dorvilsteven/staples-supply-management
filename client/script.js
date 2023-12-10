@@ -77,6 +77,77 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }    
 
+    const checkoutSection = document.getElementById('checkout-section');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const placeOrderBtn = document.getElementById('place-order-btn');
+    const totalPriceSpan = document.getElementById('total-price');
+    const checkoutItemsList = document.getElementById('checkout-items');
+
+    // Event listener for the checkout button
+    checkoutBtn.addEventListener('click', () => {
+        // Show the checkout section
+        checkoutSection.classList.remove('hidden');
+
+        // Fetch past orders and update the past orders section
+        fetchPastOrders();
+    });
+
+    // // Event listener for the place order button
+    // placeOrderBtn.addEventListener('click', () => {
+    //     // Add logic to confirm the order and place it in the database
+    //     // You may want to display a success message and update the UI
+    //     console.log('Order placed successfully!');
+    //     checkoutSection.classList.add('hidden'); // Hide the checkout section after placing the order
+    // });
+
+    // Function to process past orders and update the UI
+    function processPastOrders(pastOrders) {
+    // Clear existing content in the past orders section
+    checkoutItemsList.innerHTML = '';
+    totalPriceSpan.textContent = '';
+
+    // Check if there are past orders
+    if (pastOrders && pastOrders.length > 0) {
+        // Iterate through past orders
+        pastOrders.forEach(order => {
+            // Create a list item for each order
+            const orderItem = document.createElement('li');
+            orderItem.innerHTML = `
+                <strong>Order Date:</strong> ${new Date(order.order_date).toLocaleDateString()}<br>
+                <strong>Items:</strong>
+                <ul>
+                    ${order.items.map(item => `<li>${item.description} - ${item.sku} - $${item.price}</li>`).join('')}
+                </ul>
+                <strong>Total Price:</strong> $${order.totalPrice.toFixed(2)}<br>
+                ----------------------------------------
+            `;
+            // Append the order item to the checkout items list
+            checkoutItemsList.appendChild(orderItem);
+        });
+        // Calculate and display the total price of all past orders
+        const totalPrices = pastOrders.map(order => order.totalPrice);
+        const totalPrice = totalPrices.reduce((sum, price) => sum + price, 0);
+        totalPriceSpan.textContent = totalPrice.toFixed(2);
+    } else {
+        // Display a message when there are no past orders
+        checkoutItemsList.innerHTML = '<p>No past orders available.</p>';
+    }
+}
+
+    // Function to fetch and display past orders
+    async function fetchPastOrders() {
+        try {
+            const response = await fetch('http://localhost:3000/orders');
+            const pastOrders = await response.json();
+
+            // Process the past orders and update the UI
+            processPastOrders(pastOrders);
+
+        } catch (error) {
+            console.error('Error fetching past orders:', error);
+        }
+    }
+
     function removeFromCart(sku) {
         const itemIndex = shoppingCart.findIndex(item => item.sku === sku);
         if (itemIndex !== -1) {
@@ -110,5 +181,23 @@ document.addEventListener('DOMContentLoaded', () => {
             popup.style.display = 'none';
         }, 3000); // Hide the popup after 2 seconds
     }
+
+    // Function to check the entered password
+    window.checkPassword = () => {
+        const passwordInput = document.getElementById('password');
+        const passwordScreen = document.getElementById('password-screen');
+
+        const enteredPassword = passwordInput.value.trim(); // Get entered password
+
+        // Replace 'yourSecretPassword' with your actual password
+        if (enteredPassword === 'profit') {
+            // Password is correct, hide the password screen and show the item container
+            passwordScreen.style.display = 'none';
+            itemContainer.style.display = 'grid';
+        } else {
+            // Password is incorrect, show an alert (you can replace this with a more user-friendly popup)
+            alert('Incorrect password. Please try again.');
+        }
+    };
 });
 
