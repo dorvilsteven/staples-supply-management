@@ -37,10 +37,16 @@
 
     <!-- checkout section  -->
     <div id="checkout-section" class="hidden">
-        <!-- <h2>Order Confirmation</h2> -->
-        <!-- <ul id="checkout-items"></ul> -->
-        <!-- <p>Total Price: $<span id="total-price"></span></p> -->
-        <!-- <button id="place-order-btn">Place Order</button> -->
+        <button onclick="backBtn()"><i class="fa-solid fa-arrow-left"></i>Back</button>
+        <div class="checkout-cart">
+            <h2>Checkout</h2>   
+            <ul id="checkout-items"></ul>
+            <p>Total Price: $<span id="total-price"></span></p>
+            <button id="place-order-btn">Place Order</button>
+        </div>
+        <div id="pastorders">
+            <ul id="pastorders-list"></ul>
+        </div>
     </div>
 
     <!-- Floating Cart Button -->

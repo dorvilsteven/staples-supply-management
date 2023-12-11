@@ -7,6 +7,10 @@ body {
     font-size: 16px;
 }
 
+.hidden {
+    display: none;
+}
+
 #cart-container {
     position: fixed;
     top: 0;

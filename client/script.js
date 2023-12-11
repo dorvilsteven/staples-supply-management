@@ -1,3 +1,8 @@
+function findPrice(cart) {
+    let orderSum = 0;
+    cart.forEach(item => orderSum += parseInt(item.price));
+    return orderSum;
+} 
 document.addEventListener('DOMContentLoaded', () => {
     const itemContainer = document.getElementById('item-container');
     const shoppingCart = [];
@@ -82,57 +87,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeOrderBtn = document.getElementById('place-order-btn');
     const totalPriceSpan = document.getElementById('total-price');
     const checkoutItemsList = document.getElementById('checkout-items');
+    const pastOrdersList = document.getElementById('pastorders-list');
 
     // Event listener for the checkout button
     checkoutBtn.addEventListener('click', () => {
         // Show the checkout section
+        itemContainer.style.display = 'none';
         checkoutSection.classList.remove('hidden');
 
+        // display order for checkout
+        displayCartInCheckout(shoppingCart);
         // Fetch past orders and update the past orders section
         fetchPastOrders();
     });
 
     // // Event listener for the place order button
-    // placeOrderBtn.addEventListener('click', () => {
-    //     // Add logic to confirm the order and place it in the database
-    //     // You may want to display a success message and update the UI
-    //     console.log('Order placed successfully!');
-    //     checkoutSection.classList.add('hidden'); // Hide the checkout section after placing the order
-    // });
+    placeOrderBtn.addEventListener('click', async () => {
+        try {
+            const orderDetails = {
+                items_list: shoppingCart,
+                quantity: shoppingCart.length,
+                totalPrice: findPrice(shoppingCart)
+            };
+            const response = await fetch('http://localhost:3000/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderDetails)
+            });
+            if (response.ok) {
+                // Clear the shopping cart
+                shoppingCart.length = 0;
+                // Update the UI as needed (e.g., clear the cart display)
+                updateCartDisplay();
+                // Hide the checkout section and show the item container
+                checkoutSection.classList.add('hidden');
+                itemContainer.style.display = 'grid';
+                // Display success message
+                popup.style.display = 'block';
+                popup.style.backgroundColor = '#ff0000';
+                popup.style.color = '#000000';
+                popup.innerHTML = `Order Placed`;
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 3000); // Hide the popup after 2 seconds
+            } else {
+                // Handle errors from the server
+                const errorData = await response.json();
+                console.error('Error placing order:', errorData);
+                alert(`Error placing order: ${errorData.error}`);
+            }
+        } catch (error) {
+            // Handle unexpected errors
+            console.error('Unexpected error placing order:', error);
+            alert('Unexpected error placing order. Please try again.');
+        }
+    });
 
-    // Function to process past orders and update the UI
-    function processPastOrders(pastOrders) {
-    // Clear existing content in the past orders section
-    checkoutItemsList.innerHTML = '';
-    totalPriceSpan.textContent = '';
 
-    // Check if there are past orders
-    if (pastOrders && pastOrders.length > 0) {
-        // Iterate through past orders
-        pastOrders.forEach(order => {
-            // Create a list item for each order
-            const orderItem = document.createElement('li');
-            orderItem.innerHTML = `
-                <strong>Order Date:</strong> ${new Date(order.order_date).toLocaleDateString()}<br>
-                <strong>Items:</strong>
-                <ul>
-                    ${order.items.map(item => `<li>${item.description} - ${item.sku} - $${item.price}</li>`).join('')}
-                </ul>
-                <strong>Total Price:</strong> $${order.totalPrice.toFixed(2)}<br>
-                ----------------------------------------
-            `;
-            // Append the order item to the checkout items list
-            checkoutItemsList.appendChild(orderItem);
+    // Function to display shopping cart in checkout
+    function displayCartInCheckout(cartItems) {
+        checkoutItemsList.innerHTML = '';
+        cartItems.forEach((item) => {
+            const cartListItem = document.createElement('li');
+            cartListItem.innerHTML = `
+                    <span>${item.sku} - ${item.description} - ${item.price}</span>
+                `;
+            checkoutItemsList.appendChild(cartListItem);
         });
-        // Calculate and display the total price of all past orders
-        const totalPrices = pastOrders.map(order => order.totalPrice);
-        const totalPrice = totalPrices.reduce((sum, price) => sum + price, 0);
-        totalPriceSpan.textContent = totalPrice.toFixed(2);
-    } else {
-        // Display a message when there are no past orders
-        checkoutItemsList.innerHTML = '<p>No past orders available.</p>';
+        totalPriceSpan.innerText = findPrice(cartItems);
     }
-}
 
     // Function to fetch and display past orders
     async function fetchPastOrders() {
@@ -140,8 +165,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('http://localhost:3000/orders');
             const pastOrders = await response.json();
 
-            // Process the past orders and update the UI
-            processPastOrders(pastOrders);
+            pastOrdersList.innerHTML = '';
+            pastOrders.forEach(order => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>Order ID: ${order.orderId} - </span>
+                    <span>Quantity: <a href="">${order.quantity} items</a> - </span>
+                    <span>Price: ${order.totalPrice}</span>
+                `;
+                pastOrdersList.appendChild(listItem);
+            });
 
         } catch (error) {
             console.error('Error fetching past orders:', error);
@@ -195,9 +228,23 @@ document.addEventListener('DOMContentLoaded', () => {
             passwordScreen.style.display = 'none';
             itemContainer.style.display = 'grid';
         } else {
-            // Password is incorrect, show an alert (you can replace this with a more user-friendly popup)
-            alert('Incorrect password. Please try again.');
+            // Password is incorrect, show an alert
+            popup.style.display = 'block';
+            popup.style.backgroundColor = '#000000';
+            popup.style.color = '#ffffff';
+            popup.innerHTML = `Incorrect Password, Please Try Again.`;
+            popup.style.zIndex = '1001';
+            setTimeout(() => {
+                popup.style.display = 'none';
+                popup.style.zIndex = '1';
+            }, 3000); // Hide the popup after 2 seconds
         }
     };
+
+    window.backBtn = () => {
+        // Hide the checkout section and show the item container
+        checkoutSection.classList.add('hidden');
+        itemContainer.style.display = 'grid';
+    }
 });
 
