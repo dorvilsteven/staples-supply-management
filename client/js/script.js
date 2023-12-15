@@ -1,8 +1,17 @@
 function findPrice(cart) {
     let orderSum = 0;
-    cart.forEach(item => orderSum += parseInt(item.price));
-    return orderSum;
+    cart.forEach(item => orderSum += parseFloat(item.price));
+    return orderSum.toFixed(2);
 } 
+// Function to toggle the dropdown
+function toggleDropdown(arrow) {
+    const dropdownList = arrow.parentElement.nextElementSibling;
+
+    // Toggle the 'open' class on the dropdown
+    dropdownList.classList.toggle('hidden');
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const itemContainer = document.getElementById('item-container');
     const shoppingCart = [];
@@ -67,10 +76,33 @@ document.addEventListener('DOMContentLoaded', () => {
         shoppingCart.forEach(itemInCart => {
             if (itemInCart) {
                 const cartItemElement = document.createElement('li');
-                cartItemElement.innerHTML = `
-                    <span>${itemInCart.description} - ${itemInCart.sku} - ${itemInCart.price}</span>
-                    <button class="remove-from-cart-btn" data-item-sku="${itemInCart.sku}">Remove</button>
-                `;
+                cartItemElement.classList.add('cart-item'); // Add a class for styling
+                
+                const itemSku = document.createElement('span');
+                itemSku.classList.add('item-sku');
+                itemSku.innerText = `${itemInCart.sku}`;
+                
+                const itemDescription = document.createElement('span');
+                itemDescription.classList.add('item-description');
+                itemDescription.innerText = `${itemInCart.description}`;
+
+                const itemPrice = document.createElement('span');
+                itemPrice.classList.add('item-price');
+                itemPrice.innerText = `$${itemInCart.price}`;
+
+                // Create remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('remove-from-cart-btn');
+                removeBtn.dataset.itemSku = itemInCart.sku; // Use dataset for data attributes
+                removeBtn.innerText = 'Remove';
+                removeBtn.addEventListener('click', () => removeFromCart(itemInCart.sku));
+
+                // Append elements to the cartItemElement
+                cartItemElement.appendChild(itemSku);
+                cartItemElement.appendChild(itemDescription);
+                cartItemElement.appendChild(itemPrice);
+                cartItemElement.appendChild(removeBtn);
+
                 cartContainer.appendChild(cartItemElement);
                 
                 // Add event listener for the "Remove from Cart" button
@@ -150,10 +182,27 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayCartInCheckout(cartItems) {
         checkoutItemsList.innerHTML = '';
         cartItems.forEach((item) => {
+            
             const cartListItem = document.createElement('li');
-            cartListItem.innerHTML = `
-                    <span>${item.sku} - ${item.description} - ${item.price}</span>
-                `;
+            cartListItem.classList.add('checkout-item'); // Add a class for styling
+
+            const itemSku = document.createElement('span');
+            itemSku.classList.add('item-sku');
+            itemSku.innerText = `${item.sku}`;
+
+            const itemDescription = document.createElement('span');
+            itemDescription.classList.add('item-description');
+            itemDescription.innerText = `${item.description}`;
+
+            const itemPrice = document.createElement('span');
+            itemPrice.classList.add('item-price');
+            itemPrice.innerText = `$${item.price}`;
+
+            // Append elements to the cartListItem
+            cartListItem.appendChild(itemSku);
+            cartListItem.appendChild(itemDescription);
+            cartListItem.appendChild(itemPrice);
+
             checkoutItemsList.appendChild(cartListItem);
         });
         totalPriceSpan.innerText = findPrice(cartItems);
@@ -168,10 +217,27 @@ document.addEventListener('DOMContentLoaded', () => {
             pastOrdersList.innerHTML = '';
             pastOrders.forEach(order => {
                 const listItem = document.createElement('li');
+                
+                const itemsList = order.items_list.map(item => `
+                    <li class="order-list-item">
+                        <span>${item.sku}</span>
+                        <span>${item.description}</span>
+                        <span>${item.price}</span>
+                    </li>
+                `).join('');
+
                 listItem.innerHTML = `
-                    <span>Order ID: ${order.orderId} - </span>
-                    <span>Quantity: <a href="">${order.quantity} items</a> - </span>
-                    <span>Price: ${order.totalPrice}</span>
+                    <div class="order-list-box">
+                        <span class="order-id">Order ID: ${order.orderId}</span>
+                        <span class="order-quantity">Quantity: ${order.quantity} items</a></span>
+                        <span class="order-price">Price: ${order.totalPrice}</span>
+                        <span class="order-dropdown arrow-down" onclick="toggleDropdown(this)"><i class="fa-solid fa-angle-down"></i></span>
+                    </div>
+                    <div class="dropdown hidden">
+                        <ul class="order-items-list">
+                            ${itemsList}
+                        </ul>
+                    </div>
                 `;
                 pastOrdersList.appendChild(listItem);
             });
@@ -186,7 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (itemIndex !== -1) {
             shoppingCart.splice(itemIndex, 1);
             deletePopup(sku);
-            console.log('Shopping cart: ', shoppingCart);
             updateCartDisplay();
         } else {
             console.error(`Item with SKU ${sku} not found in the cart.`);
